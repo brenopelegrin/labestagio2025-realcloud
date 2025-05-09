@@ -1550,6 +1550,7 @@ Resources:
             source /home/ec2-user/venv/bin/activate
             pip install boto3
             pip install ec2_metadata
+            echo "Testing CodePipeline!"
             wget -O server.py ${ServerCodeUrl}
             python3 server.py -p 80 -r ${AWS::Region}
 
