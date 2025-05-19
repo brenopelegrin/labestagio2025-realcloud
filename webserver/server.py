@@ -13,7 +13,7 @@ import boto3
 try:
     from ec2_metadata import ec2_metadata
 except ImportError:
-    ec2_metadata = None # Define as None if not available (e.g. local dev without the package)
+    ec2_metadata = None
 
 region = 'us-east-2'
 
@@ -21,7 +21,6 @@ try:
     region = ec2_metadata.region
 except:
     pass
-
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(message)s')
@@ -76,7 +75,6 @@ def call_getRecommendation(region, user_id):
             logger.debug(f"[DEBUG] UserID {user_id} não encontrado nos mocks. Retornando vazio.")
             return {} # Simula item não encontrado
 
-    # Código original para modo não-debug
     session = boto3.Session()
     ddb_client = session.client('dynamodb', region_name=region)
     ssm_client = session.client('ssm', region_name=region)
