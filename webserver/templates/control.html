@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>MovieMaster</h1>
+            <p style="margin-top: -0.5rem;">Your personal movie recommendation engine</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="control-section">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M78.6 5C69.1-2.4 55.6-1.5 47 7L7 47c-8.5 8.5-9.4 22-2.1 31.6l80 104c4.5 5.9 11.6 9.4 19 9.4l54.1 0 109 109c-14.7 29-10 65.4 14.3 89.6l112 112c12.5 12.5 32.8 12.5 45.3 0l64-64c12.5-12.5 12.5-32.8 0-45.3l-112-112c-24.2-24.2-60.6-29-89.6-14.3l-109-109 0-54.1c0-7.5-3.5-14.5-9.4-19L78.6 5zM19.9 396.1C7.2 408.8 0 426.1 0 444.1C0 481.6 30.4 512 67.9 512c18 0 35.3-7.2 48-19.9L233.7 374.3c-7.8-20.9-9-43.6-3.6-65.1l-61.7-61.7L19.9 396.1zM512 144c0-10.5-1.1-20.7-3.2-30.5c-2.4-11.2-16.1-14.1-24.2-6l-63.9 63.9c-3 3-7.1 4.7-11.3 4.7L352 176c-8.8 0-16-7.2-16-16l0-57.4c0-4.2 1.7-8.3 4.7-11.3l63.9-63.9c8.1-8.1 5.2-21.8-6-24.2C388.7 1.1 378.5 0 368 0C288.5 0 224 64.5 224 144l0 .8 85.3 85.3c36-9.1 75.8 .5 104 28.7L429 274.5c49-23 83-72.8 83-130.5zM56 432a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z"/></svg>
+                Control operation mode
+            </h3>
+            {% if success == true %}
+              <p class="diagnostic-output">Status: <a style="color: green;">Success on toggle operation mode</a></p>
+            {% else %}
+              <p class="diagnostic-output">Status: <a style="color: red;">Failed to toggle operation mode</a></p>
+            {% endif %}
+            {% if message %}
+              <p class="message-output">{{message}}</p>
+            {% endif %}
+        </section>
+
+        {% if diagnostic_info %}
+        <section id="diagnostic-section" class="container-padding"> 
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480L40 480c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24l0 112c0 13.3 10.7 24 24 24s24-10.7 24-24l0-112c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>
+                Diagnostic Information
+            </h3>
+            <pre class="diagnostic-output">{{diagnostic_info}}</pre>
+        </section>
+        {% endif %}
+
+        <section id="metadata-section">
+            <div id="metadata-container">
+                {% if aws_metadata and not aws_metadata.error %}
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-server" style="vertical-align: middle; margin-right: 8px;"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                        AWS Metadata
+                    </h3>
+                    <table class='styled-table'>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AWS Account ID</td>
+                                <td>{{aws_metadata.account_id}}</td>
+                            </tr>
+                            <tr>
+                                <td>AWS Region</td>
+                                <td>{{aws_metadata.region}}</td>
+                            </tr>
+                            <tr>
+                                <td>Availability Zone</td>
+                                <td>{{aws_metadata.az}}</td>
+                            </tr>
+                            <tr>
+                                <td>EC2 Instance ID</td>
+                                <td>{{aws_metadata.ec2_instance_id}}</td>
+                            </tr>
+                            <tr>
+                                <td>EC2 Instance Type</td>
+                                <td>{{aws_metadata.ec2_instance_type}}</td>
+                            </tr>
+                            <tr>
+                                <td>EC2 AMI ID</td>
+                                <td>{{aws_metadata.ec2_ami_id}}</td>
+                            </tr>
+                            <tr>
+                                <td>Private Hostname</td>
+                                <td>{{aws_metadata.private_hostname}}</td>
+                            </tr>
+                            <tr>
+                                <td>Private IPv4</td>
+                                <td>{{aws_metadata.private_ipv4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% else %}
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-server" style="vertical-align: middle; margin-right: 8px;"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                        AWS Metadata
+                    </h3>
+                    <p>
+                        {{aws_metadata.error}}
+                    </p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p class="footer-copyright">© 2025 MovieMaster - A demo for 2025 RealCloud's Well Architected Labs Presentation</p>
+        </div>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

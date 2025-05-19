@@ -199,6 +199,45 @@ def home():
     
     return response
 
+@app.route('/control/setmode/<int:mode>', methods=['GET'])
+def set_mode(mode):
+    global HEALTHCHECK_MODE
+    ec2_meta_content = get_formatted_ec2_metadata()
+    
+    if mode not in [1,2,3]:
+        status_code = 400
+        message = f"The mode `{mode}` doesn't exist."
+        response = make_response(
+            render_template(
+                'control.html',
+                success=False,
+                message=message,
+                aws_metadata=ec2_meta_content
+            ), 
+            status_code
+        )
+        return response
+    
+    if mode == 1:
+        HEALTHCHECK_MODE = HealthCheckMode.NO_ERROR_HANDLING
+    if mode == 2:
+        HEALTHCHECK_MODE = HealthCheckMode.ERROR_HANDLING
+    if mode == 3:
+        HEALTHCHECK_MODE = HealthCheckMode.DEEP_HEALTHCHECK
+    
+    status_code = 200
+    message = f"Successfully set operation mode to `{mode}`."
+    response = make_response(
+        render_template(
+            'control.html',
+            success=True,
+            message=message,
+            aws_metadata=ec2_meta_content
+        ), 
+        status_code
+    )
+    return response
+
 @app.route('/healthcheck')
 def healthcheck():
     """
