@@ -5,6 +5,7 @@ import os
 import sys
 import getopt
 import logging
+import argparse
 
 from flask import Flask, render_template, url_for, make_response
 import boto3
@@ -269,53 +270,57 @@ def healthcheck():
 
 # Initialize server
 def run(argv):
+    global HEALTHCHECK_MODE
     global region
-    try:
-        opts, args = getopt.getopt(
-            argv,
-            "hs:p:r:",
-            [
-                "help",
-                "server_ip=",
-                "server_port=",
-                "region="
-            ]
-        )
-    except getopt.GetoptError:
-        print('server.py -s <server_ip> -p <server_port> -r <AWS region>')
-        sys.exit(2)
-    print(opts)
 
+    parser = argparse.ArgumentParser(
+                    prog='ProgramName',
+                    description='What the program does',
+                    epilog='Text at the bottom of help')
+    
     # Default value - will be over-written if supplied via args
     server_port = 80
     server_ip = '0.0.0.0'
+    HEALTHCHECK_MODE = HealthCheckMode.DEEP_HEALTHCHECK 
     try:
         region = ec2_metadata.region
     except:
         region = 'us-east-2'
 
-    # Get commandline arguments
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            print('server.py -s <server_ip> -p <server_port> -r <AWS region>')
-            sys.exit()
-        elif opt in ("-s", "--server_ip"):
-            server_ip = arg
-        elif opt in ("-p", "--server_port"):
-            server_port = int(arg)
-        elif opt in ("-r", "--region"):
-            region = arg
+    parser.add_argument('-s', '--server_ip', help="Server IP", required=False, type=str)
+    parser.add_argument('-p', '--server_port', help="Server port", required=False, type=int)
+    parser.add_argument('-o', '--operation_mode', help="Operation mode (1,2,3)", required=False, type=int)
+    parser.add_argument('-r', '--region', help="AWS Region", required=False, type=str)
+    
+    args = parser.parse_args()
+    
+    if args.server_ip:
+        server_ip = args.server_ip
+    
+    if args.server_port:
+        server_port = args.server_port
+    
+    if args.region:
+        region = args.region
+    
+    if args.operation_mode:
+        mode = args.operation_mode
+        if mode == 1:
+            HEALTHCHECK_MODE = HealthCheckMode.NO_ERROR_HANDLING
+        if mode == 2:
+            HEALTHCHECK_MODE = HealthCheckMode.ERROR_HANDLING
+        if mode == 3:
+            HEALTHCHECK_MODE = HealthCheckMode.DEEP_HEALTHCHECK            
 
     # start server
 
     # debug=True do Flask é diferente do nosso DEBUG_MODE.
     # Manter o debug do Flask como True para desenvolvimento é útil.
-    app.run(host=server_ip, port=server_port, debug=False)
-
-    logger.info(f"Servidor Flask iniciando em http://{server_ip}:{server_port}")
+    logger.info(f"Servidor Flask iniciando em http://{server_ip}:{server_port}, no modo {HEALTHCHECK_MODE}, região {region}")
     if DEBUG_MODE:
         logger.info("Rodando em MODO DEBUG. Chamadas à AWS serão mockadas.")
-
+        
+    app.run(host=server_ip, port=server_port, debug=False)
 
 if __name__ == "__main__":
     run(sys.argv[1:])

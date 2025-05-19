@@ -107,6 +107,14 @@ Parameters:
     AllowedPattern: ^(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$
     ConstraintDescription: URL where server code can be downloaded, such as S3 or GitHub.
 
+  ServerOperationMode:
+    Description: The operation mode for the webserver. 1 means no error handling, 2 means error handling, 3 means deep healthcheck.
+    Type: Number
+    Default: "3"
+    MinValue: "1"
+    MaxValue: "3"
+    ConstraintDescription: must be between 1 and 3.
+
   ALBSGSource:
     Description: The IP address range that can be used to access the web app
     Type: String
@@ -1555,7 +1563,7 @@ Resources:
             cp -r /tmp/extraction_folder/labestagio2025-realcloud-prod/. /home/ec2-user/labestagio2025-realcloud/
             python3 -m pip install -r /home/ec2-user/labestagio2025-realcloud/webserver/requirements.txt
             echo "Testing CodePipeline! v2" > /tmp/pipeline_log.log
-            python3 /home/ec2-user/labestagio2025-realcloud/webserver/server.py -p 80 -r ${AWS::Region}
+            python3 /home/ec2-user/labestagio2025-realcloud/webserver/server.py -p 80 -r ${AWS::Region} -o ${ServerOperationMode}
 
   WebInstancePolicy:
     Type: AWS::IAM::ManagedPolicy
