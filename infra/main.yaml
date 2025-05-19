@@ -1825,6 +1825,7 @@ Metadata:
           - InstanceType
           - LatestAmiId
           - ServerCodeUrl
+          - ServerOperationMode
           - Web1AutoScaleDesired
           - ALBSGSource
       - 
