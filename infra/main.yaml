@@ -1562,7 +1562,7 @@ Resources:
             unzip -o /tmp/repository.zip -d /tmp/extraction_folder
             cp -r /tmp/extraction_folder/labestagio2025-realcloud-prod/. /home/ec2-user/labestagio2025-realcloud/
             python3 -m pip install -r /home/ec2-user/labestagio2025-realcloud/webserver/requirements.txt
-            echo "Testing CodePipeline! v4" > /tmp/pipeline_log.log
+            echo "Testing CodePipeline! Presentation v0" > /tmp/pipeline_log.log
             python3 /home/ec2-user/labestagio2025-realcloud/webserver/server.py -p 80 -r ${AWS::Region} -o ${ServerOperationMode}
 
   WebInstancePolicy:
