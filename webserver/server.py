@@ -152,6 +152,7 @@ def get_formatted_ec2_metadata():
 @app.route('/')
 def home():
     global region
+    global HEALTHCHECK_MODE
     """
     Rota principal que exibe recomendações de TV.
     """
@@ -193,6 +194,7 @@ def home():
         'index.html',
         user_name=user_name,
         movie_title=tv_show,
+        operation_mode=HEALTHCHECK_MODE,
         aws_metadata=ec2_meta_content,
         diagnostic_info=diagnostic_info
     )
@@ -212,6 +214,7 @@ def set_mode(mode):
                 'control.html',
                 success=False,
                 message=message,
+                operation_mode=HEALTHCHECK_MODE,
                 aws_metadata=ec2_meta_content
             ), 
             status_code
@@ -232,6 +235,7 @@ def set_mode(mode):
             'control.html',
             success=True,
             message=message,
+            operation_mode=HEALTHCHECK_MODE,
             aws_metadata=ec2_meta_content
         ), 
         status_code
@@ -244,6 +248,7 @@ def healthcheck():
     Rota de verificação de saúde. Verifica a dependência do serviço de recomendação.
     """
     global region
+    global HEALTHCHECK_MODE
     is_healthy = True
     diagnostic_info = ''
     TEST = 'test'
@@ -284,6 +289,7 @@ def healthcheck():
                 'healthcheck.html',
                 health_status=health_status,
                 is_healthy=is_healthy,
+                operation_mode=HEALTHCHECK_MODE,
                 diagnostic_info=diagnostic_info,
                 aws_metadata=ec2_meta_content
             ), 
@@ -295,6 +301,7 @@ def healthcheck():
             render_template(
                 'healthcheck.html',
                 health_status=health_status,
+                operation_mode=HEALTHCHECK_MODE,
                 diagnostic_info=diagnostic_info,
                 aws_metadata=ec2_meta_content
             ), 
