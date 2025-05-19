@@ -2,6 +2,8 @@ from enum import Enum
 import traceback
 import random
 import os
+import sys
+import getopt
 import logging
 
 from flask import Flask, render_template, url_for, make_response
@@ -267,14 +269,55 @@ def healthcheck():
     
     return response
 
-if __name__ == '__main__':
-    server_ip = os.environ.get('SERVER_IP', '0.0.0.0')
-    server_port = int(os.environ.get('SERVER_PORT', 5000))
+# Initialize server
+def run(argv):
+    global region
+    try:
+        opts, args = getopt.getopt(
+            argv,
+            "hs:p:r:",
+            [
+                "help",
+                "server_ip=",
+                "server_port=",
+                "region="
+            ]
+        )
+    except getopt.GetoptError:
+        print('server.py -s <server_ip> -p <server_port> -r <AWS region>')
+        sys.exit(2)
+    print(opts)
+
+    # Default value - will be over-written if supplied via args
+    server_port = 80
+    server_ip = '0.0.0.0'
+    try:
+        region = ec2_metadata.region
+    except:
+        region = 'us-east-2'
+
+    # Get commandline arguments
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            print('server.py -s <server_ip> -p <server_port> -r <AWS region>')
+            sys.exit()
+        elif opt in ("-s", "--server_ip"):
+            server_ip = arg
+        elif opt in ("-p", "--server_port"):
+            server_port = int(arg)
+        elif opt in ("-r", "--region"):
+            region = arg
+
+    # start server
+
+    # debug=True do Flask é diferente do nosso DEBUG_MODE.
+    # Manter o debug do Flask como True para desenvolvimento é útil.
+    app.run(host=server_ip, port=server_port, debug=False)
 
     logger.info(f"Servidor Flask iniciando em http://{server_ip}:{server_port}")
     if DEBUG_MODE:
         logger.info("Rodando em MODO DEBUG. Chamadas à AWS serão mockadas.")
 
-    # debug=True do Flask é diferente do nosso DEBUG_MODE.
-    # Manter o debug do Flask como True para desenvolvimento é útil.
-    app.run(host=server_ip, port=server_port, debug=False)
+
+if __name__ == "__main__":
+    run(sys.argv[1:])

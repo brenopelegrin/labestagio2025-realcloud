@@ -103,7 +103,7 @@ Parameters:
 
   ServerCodeUrl:
     Type: String
-    Default: https://aws-well-architected-labs-ohio.s3.us-east-2.amazonaws.com/Healthcheck/Code/server_basic.py
+    Default: https://github.com/brenopelegrin/labestagio2025-realcloud/archive/refs/heads/prod.zip
     AllowedPattern: ^(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$
     ConstraintDescription: URL where server code can be downloaded, such as S3 or GitHub.
 
@@ -1545,14 +1545,17 @@ Resources:
             #!/bin/bash
             yum -y update
             sleep 30 # prevent "Error: Rpmdb changed underneath us"
-            yum install python3 python-virtualenv python-pip -y
+            yum install python3 python-virtualenv python-pip unzip -y 
             python3 -m venv /home/ec2-user/venv
             source /home/ec2-user/venv/bin/activate
-            pip install boto3
-            pip install ec2_metadata
-            echo "Testing CodePipeline! We will be adding the Spot Elastigroup now..." > /tmp/pipeline_log.log
-            wget -O server.py ${ServerCodeUrl}
-            python3 server.py -p 80 -r ${AWS::Region}
+            mkdir -p /home/ec2-user/labestagio2025-realcloud
+            mkdir -p /tmp/extraction_folder
+            wget -O /tmp/repository.zip ${ServerCodeUrl}
+            unzip -o /tmp/repository.zip -d /tmp/extraction_folder
+            cp -r /tmp/extraction_folder/labestagio2025-realcloud-prod/. /home/ec2-user/labestagio2025-realcloud/
+            python3 -m pip install -r /home/ec2-user/labestagio2025-realcloud/webserver/requirements.txt
+            echo "Testing CodePipeline!" > /tmp/pipeline_log.log
+            python3 /home/ec2-user/labestagio2025-realcloud/webserver/server.py -p 80 -r ${AWS::Region}
 
   WebInstancePolicy:
     Type: AWS::IAM::ManagedPolicy
